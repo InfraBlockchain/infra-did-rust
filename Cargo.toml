@@ -1,12 +1,8 @@
 [package]
-name = "example-rs"
+name = "infra-did"
 version = "0.1.0"
-authors = ["Brick Pop <itsbrickpop@gmail.com>"]
-edition = "2018"
-
-[lib]
-name = "example"
-crate-type = ["staticlib", "cdylib"]
+authors = ["InfraBlockchain"]
+edition = "2021"
 
 [dependencies]
 hex = "0.4.3"
