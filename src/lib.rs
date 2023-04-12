@@ -16,8 +16,8 @@ pub fn random_phrase(words_number: u32) -> String {
     mnemonic.into_phrase()
 }
 
-pub fn substrate_address(suri: &str, prefix: u8) -> String {
-    let keypair_option = KeyPair::from_suri(suri);
+pub fn substrate_address(suri: String, prefix: u8) -> String {
+    let keypair_option = KeyPair::from_suri(suri.as_str());
     let keypair = match keypair_option {
         Some(c) => c,
         _ => return "".to_string(),
@@ -27,7 +27,7 @@ pub fn substrate_address(suri: &str, prefix: u8) -> String {
     rust_string
 }
 
-pub fn generate_ss58_did(network_id: &str) -> String {
+pub fn generate_ss58_did(network_id: String) -> String {
     let mnemonic_type = MnemonicType::for_word_count(12).unwrap();
     let mnemonic = Mnemonic::new(mnemonic_type, Language::English);
 
@@ -61,7 +61,7 @@ pub fn generate_ss58_did(network_id: &str) -> String {
 }
 
 #[no_mangle]
-pub fn did_to_hex_public_key(did: &str) -> String {
+pub fn did_to_hex_public_key(did: String) -> String {
     let splited_did: Vec<&str> = did.split(":").collect();
     let address = splited_did[3];
 
@@ -74,20 +74,22 @@ pub fn did_to_hex_public_key(did: &str) -> String {
 }
 
 #[no_mangle]
-pub fn ss58_address_to_did(address: &str, network_id: &str) -> String {
+pub fn ss58_address_to_did(address: String, network_id: String) -> String {
     let did = format!("did:infra:{}:{}", network_id, address);
     did
 }
 
 #[test]
 fn test_generate_ss58_did() {
-    println!("{:?}", generate_ss58_did("01"));
+    println!("{:?}", generate_ss58_did("01".to_string()));
 }
 
 #[test]
 fn test_did_to_hex_public_key() {
     assert_eq!(
-        did_to_hex_public_key("did:infra:01:5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL"),
+        did_to_hex_public_key(
+            "did:infra:01:5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL".to_string()
+        ),
         "de7687abb0442514b3f765e17f6cde78227e3b5afa45627f12d805fb5c5e473a".to_string()
     );
 }
@@ -95,7 +97,10 @@ fn test_did_to_hex_public_key() {
 #[test]
 fn test_ss58_address_to_did() {
     assert_eq!(
-        ss58_address_to_did("5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL", "01"),
+        ss58_address_to_did(
+            "5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL".to_string(),
+            "01".to_string()
+        ),
         "did:infra:01:5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL".to_string()
     );
 }
