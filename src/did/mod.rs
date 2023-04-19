@@ -1,5 +1,6 @@
 use bip39::{Language, Mnemonic, MnemonicType, Seed};
-use schnorrkel::ExpansionMode;
+use ed25519_dalek::{PublicKey, SecretKey};
+use schnorrkel::{ExpansionMode, SECRET_KEY_LENGTH};
 use serde_json::json;
 use substrate_bip39::mini_secret_from_entropy;
 
@@ -37,19 +38,43 @@ pub fn generate_ss58_did(network_id: String) -> String {
         _ => return "".to_string(),
     };
 
-    let seed = Seed::new(&mnemonic, "");
-
     let address = keypair.ss58_address(42);
     let did = format!("did:infra:{}:{}", network_id, address.clone());
 
     let mini_secret_key = mini_secret_from_entropy(mnemonic.entropy(), "").unwrap();
 
-    let secret_key: schnorrkel::SecretKey = mini_secret_key.expand(ExpansionMode::Ed25519);
-    let public_key: schnorrkel::PublicKey = secret_key.to_public();
+    let secret_key = mini_secret_key;
+    let public_key = secret_key.expand_to_public(ExpansionMode::Ed25519);
 
     let result = serde_json::to_string(&json!({
         "mnemonic": mnemonic.into_phrase(),
-        "seed": hex::encode(seed.clone()),
+        "private_key": hex::encode(secret_key.to_bytes()),
+        "public_key": hex::encode(public_key.to_bytes()),
+        "address": address.clone(),
+        "did": did
+    }));
+
+    result.unwrap()
+}
+
+pub fn generate_ss58_did_from_phrase(suri: String, network_id: String) -> String {
+    let keypair_option = Sr25519KeyPair::from_suri(suri.as_str());
+
+    let keypair = match keypair_option {
+        Some(c) => c,
+        _ => return "".to_string(),
+    };
+
+    let address = keypair.ss58_address(42);
+    let did = format!("did:infra:{}:{}", network_id, address.clone());
+
+    let mnemonic = Mnemonic::from_phrase(&suri, Language::English).unwrap();
+    let mini_secret_key = mini_secret_from_entropy(mnemonic.entropy(), "").unwrap();
+
+    let secret_key = mini_secret_key;
+    let public_key = secret_key.expand_to_public(ExpansionMode::Ed25519);
+
+    let result = serde_json::to_string(&json!({
         "private_key": hex::encode(secret_key.to_bytes()),
         "public_key": hex::encode(public_key.to_bytes()),
         "address": address.clone(),
@@ -81,6 +106,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn testa() {
+        println!(
+            "{:?}",
+            hex::decode("9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")
+        );
+    }
+
+    #[test]
     fn test_generate_random_phrase() {
         println!("{:?}", random_phrase(12));
     }
@@ -91,12 +124,24 @@ mod tests {
     }
 
     #[test]
+    fn test_generate_ss58_did_from_phrase() {
+        println!(
+            "{:?}",
+            generate_ss58_did_from_phrase(
+                "caution juice atom organ advance problem want pledge someone senior holiday very"
+                    .to_string(),
+                "01".to_string()
+            )
+        );
+    }
+
+    #[test]
     fn test_did_to_hex_public_key() {
         assert_eq!(
             did_to_hex_public_key(
-                "did:infra:01:5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL".to_string()
+                "did:infra:01:5Gv8YYFu8H1btvmrJy9FjjAWfb99wrhV3uhPFoNEr918utyR".to_string()
             ),
-            "de7687abb0442514b3f765e17f6cde78227e3b5afa45627f12d805fb5c5e473a".to_string()
+            "d6a3105d6768e956e9e5d41050ac29843f98561410d3a47f9dd5b3b227ab8746".to_string()
         );
     }
 
