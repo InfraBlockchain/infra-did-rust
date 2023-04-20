@@ -1,11 +1,6 @@
-use std::ptr::null;
-
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    crypto::{ed25519::Ed25519KeyPair, keytype::KeyType},
-    verifiable::credential::proof::ProofSuiteType,
-};
+use crate::{crypto::keytype::KeyType, verifiable::credential::proof::ProofSuiteType};
 
 use super::{
     contexts::Contexts,
@@ -96,9 +91,13 @@ impl Credential {
         Ok(())
     }
 
-    pub fn generate_proof(&self, keypair: KeyType) -> Result<Proof, Error> {
+    pub(crate) fn validate_unsigned_embedded(&self) -> Result<(), Error> {
+        self.validate_unsigned()?;
+        Ok(())
+    }
+
+    pub fn generate_proof(&self, keypair: &KeyType) -> Result<Proof, Error> {
         let message = serde_json::to_string(&self).unwrap();
-        let mut proof: Proof = Proof::new(ProofSuiteType::Ed25519Signature2018);
         let issuer = self.issuer.as_ref().unwrap().get_id_ref().clone();
 
         match keypair {
@@ -106,21 +105,23 @@ impl Credential {
                 let signature = keypair.sign(&message.as_bytes());
                 let sig_multibase = multibase::encode(multibase::Base::Base58Btc, signature);
 
+                let mut proof: Proof = Proof::new(ProofSuiteType::Ed25519Signature2018);
                 proof.proof_purpose = Some(VerificationRelationship::AssertionMethod);
                 proof.verification_method = Some(issuer.to_string().to_owned() + "#keys-1");
                 proof.proof_value = Some(sig_multibase);
+                Ok(proof)
             }
             KeyType::Sr25519(keypair) => {
                 let signature = keypair.sign(&message.as_bytes());
                 let sig_multibase = multibase::encode(multibase::Base::Base58Btc, signature);
 
+                let mut proof: Proof = Proof::new(ProofSuiteType::Sr25519VerificationKey2020);
                 proof.proof_purpose = Some(VerificationRelationship::AssertionMethod);
                 proof.verification_method = Some(issuer.to_string().to_owned() + "#keys-1");
                 proof.proof_value = Some(sig_multibase);
+                Ok(proof)
             }
         }
-
-        Ok(proof)
     }
 
     pub fn add_proof(&mut self, proof: Proof) {
@@ -136,7 +137,7 @@ impl Credential {
         }
     }
 
-    pub fn verify(&self, keypair: KeyType) -> Result<bool, Error> {
+    pub fn verify(&self, keypair: &KeyType) -> Result<bool, Error> {
         if self.proof.is_none() {
             return Err(Error::MissingProof);
         }
@@ -172,12 +173,12 @@ impl Credential {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::json;
+    use crate::crypto::{ed25519::Ed25519KeyPair, sr25519::Sr25519KeyPair};
 
     use super::*;
 
     #[test]
-    fn test_sign_credential() {
+    fn test_sign_credential_ed25519() {
         let keypair_bytes = [
             203, 83, 75, 248, 221, 21, 169, 1, 238, 68, 44, 174, 81, 11, 36, 111, 94, 148, 36, 125,
             115, 87, 11, 234, 71, 224, 170, 133, 153, 89, 196, 18,
@@ -195,18 +196,18 @@ mod tests {
             }
         }"###;
         let mut vc: Credential = Credential::from_json_unsigned(vc_str).unwrap();
-        let proof = vc.generate_proof(keypair).unwrap();
+        let proof = vc.generate_proof(&keypair).unwrap();
         vc.add_proof(proof);
         println!("{:?}", serde_json::to_string(&vc).unwrap());
     }
 
     #[test]
-    fn test_verify_credential() {
+    fn test_verify_credential_ed25519() {
         let keypair_bytes = [
-            203, 83, 75, 248, 221, 21, 169, 1, 238, 68, 44, 174, 81, 11, 36, 111, 94, 148, 36, 125,
-            115, 87, 11, 234, 71, 224, 170, 133, 153, 89, 196, 18,
+            184, 96, 68, 197, 81, 228, 13, 193, 222, 132, 170, 137, 194, 220, 242, 118, 87, 164,
+            62, 5, 16, 241, 78, 147, 136, 193, 16, 10, 118, 249, 78, 92,
         ];
-        let keypair = KeyType::Ed25519(Ed25519KeyPair::from_secret_key_bytes(&keypair_bytes));
+        let keypair = KeyType::Ed25519(Ed25519KeyPair::from_public_key_bytes(&keypair_bytes));
 
         let vc_str = r###"{
             "@context":"https://www.w3.org/2018/credentials/v1",
@@ -228,8 +229,67 @@ mod tests {
             }
          }"###;
 
-        let mut vc: Credential = Credential::from_json(vc_str).unwrap();
+        let vc: Credential = Credential::from_json(vc_str).unwrap();
 
-        assert_eq!(vc.verify(keypair).unwrap(), true);
+        assert_eq!(vc.verify(&keypair).unwrap(), true);
+    }
+
+    #[test]
+    fn test_sign_credential_sr25519() {
+        let keypair_bytes = [
+            203, 83, 75, 248, 221, 21, 169, 1, 238, 68, 44, 174, 81, 11, 36, 111, 94, 148, 36, 125,
+            115, 87, 11, 234, 71, 224, 170, 133, 153, 89, 196, 18,
+        ];
+        let keypair =
+            KeyType::Sr25519(Sr25519KeyPair::from_mini_secret_key_bytes(&keypair_bytes).unwrap());
+
+        let vc_str = r###"{
+            "@context": "https://www.w3.org/2018/credentials/v1",
+            "id": "http://example.org/credentials/3731",
+            "type": ["VerifiableCredential"],
+            "issuer": "did:example:foo",
+            "issuanceDate": "2020-08-19T21:41:50Z",
+            "credentialSubject": {
+                "id": "did:example:d23dd687a7dc6787646f2eb98d0"
+            }
+        }"###;
+        let mut vc: Credential = Credential::from_json_unsigned(vc_str).unwrap();
+        let proof = vc.generate_proof(&keypair).unwrap();
+        vc.add_proof(proof);
+        println!("{:?}", serde_json::to_string(&vc).unwrap());
+    }
+
+    #[test]
+    fn test_verify_credential_sr25519() {
+        let keypair_bytes = [
+            10, 134, 93, 127, 235, 233, 183, 168, 140, 74, 140, 108, 193, 62, 52, 75, 186, 199, 87,
+            11, 57, 197, 167, 7, 79, 249, 198, 238, 217, 121, 191, 22,
+        ];
+        let keypair =
+            KeyType::Sr25519(Sr25519KeyPair::from_public_key_bytes(&keypair_bytes).unwrap());
+
+        let vc_str = r###"{
+            "@context": "https://www.w3.org/2018/credentials/v1",
+            "id": "http://example.org/credentials/3731",
+            "type": [
+                "VerifiableCredential"
+            ],
+            "credentialSubject": {
+                "id": "did:example:d23dd687a7dc6787646f2eb98d0"
+            },
+            "issuer": "did:example:foo",
+            "issuanceDate": "2020-08-19T21:41:50Z",
+            "proof": {
+                "type": "Sr25519VerificationKey2020",
+                "created": "2023-04-19T23:53:37.394517Z",
+                "proofPurpose": "assertionMethod",
+                "proofValue": "zHk9DkopSPjHeJiDsVWLNHUMdgbMAvjt7MU9pjKTzi7tcw3eam7guUdiGjRQDjPDreAWaCuJSdhsYWuu2Ki2YZa8",
+                "verificationMethod": "did:example:foo#keys-1"
+            }
+        }"###;
+
+        let vc: Credential = Credential::from_json(vc_str).unwrap();
+
+        assert_eq!(vc.verify(&keypair).unwrap(), true);
     }
 }
