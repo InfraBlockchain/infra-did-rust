@@ -238,7 +238,6 @@ mod tests {
                     "f02283ff600d00613244e1e43dc88d56fec666223de7ebeb3f32e93a375fe12b"
                 );
             }
-            _ => assert!(false),
         }
     }
 
@@ -259,7 +258,6 @@ mod tests {
                     "f02283ff600d00613244e1e43dc88d56fec666223de7ebeb3f32e93a375fe12b"
                 );
             }
-            _ => assert!(false),
         }
     }
 
@@ -285,7 +283,6 @@ mod tests {
                 );
             }
             None => assert!(false),
-            _ => assert!(false),
         }
     }
 
@@ -313,7 +310,6 @@ mod tests {
                 );
             }
             None => assert!(false),
-            _ => assert!(false),
         }
     }
 

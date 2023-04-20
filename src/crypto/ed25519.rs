@@ -118,7 +118,6 @@ mod tests {
                 println!("{:?}", hex::encode(secret_key_bytes));
                 println!("{:?}", hex::encode(public_key_bytes));
             }
-            _ => assert!(false),
         }
     }
 
@@ -142,7 +141,6 @@ mod tests {
                     "bd7436a22571207d018ffe83f5dc77d0750b7777f1eb169053d40201d6c68d53"
                 );
             }
-            _ => assert!(false),
         }
     }
 
@@ -168,7 +166,6 @@ mod tests {
                     "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
                 );
             }
-            _ => assert!(false),
         }
     }
 
