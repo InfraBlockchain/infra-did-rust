@@ -131,7 +131,7 @@ impl VerificationRelationship {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub enum ProofSuiteType {
     Ed25519Signature2018,
-    Sr25519VerificationKey2020,
+    Sr25519Signature2020,
 }
 
 impl FromStr for ProofSuiteType {

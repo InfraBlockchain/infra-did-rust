@@ -30,9 +30,9 @@ pub struct Credential {
     pub type_: OneOrMany<String>,
     pub credential_subject: OneOrMany<CredentialSubject>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub issuer: Option<Issuer>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub issuance_date: Option<VCDateTime>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub issuer: Option<Issuer>,
     // This field is populated only when using
     // embedded proofs such as LD-PROOF
     //   https://w3c-ccg.github.io/ld-proofs/
@@ -115,7 +115,7 @@ impl Credential {
                 let signature = keypair.sign(&message.as_bytes());
                 let sig_multibase = multibase::encode(multibase::Base::Base58Btc, signature);
 
-                let mut proof: Proof = Proof::new(ProofSuiteType::Sr25519VerificationKey2020);
+                let mut proof: Proof = Proof::new(ProofSuiteType::Sr25519Signature2020);
                 proof.proof_purpose = Some(VerificationRelationship::AssertionMethod);
                 proof.verification_method = Some(issuer.to_string().to_owned() + "#keys-1");
                 proof.proof_value = Some(sig_multibase);

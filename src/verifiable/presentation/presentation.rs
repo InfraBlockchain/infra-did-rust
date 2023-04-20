@@ -92,7 +92,7 @@ impl Presentation {
                 let signature = keypair.sign(&message.as_bytes());
                 let sig_multibase = multibase::encode(multibase::Base::Base58Btc, signature);
 
-                let mut proof: Proof = Proof::new(ProofSuiteType::Sr25519VerificationKey2020);
+                let mut proof: Proof = Proof::new(ProofSuiteType::Sr25519Signature2020);
                 proof.proof_purpose = Some(VerificationRelationship::AssertionMethod);
                 proof.verification_method = Some(holder.to_string().to_owned() + "#keys-1");
                 proof.proof_value = Some(sig_multibase);
