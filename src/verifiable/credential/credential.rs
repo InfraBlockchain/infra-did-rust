@@ -179,11 +179,11 @@ mod tests {
 
     #[test]
     fn test_sign_credential_ed25519() {
-        let keypair_bytes = [
+        let secret_key_bytes = [
             203, 83, 75, 248, 221, 21, 169, 1, 238, 68, 44, 174, 81, 11, 36, 111, 94, 148, 36, 125,
             115, 87, 11, 234, 71, 224, 170, 133, 153, 89, 196, 18,
         ];
-        let keypair = KeyType::Ed25519(Ed25519KeyPair::from_secret_key_bytes(&keypair_bytes));
+        let keypair = KeyType::Ed25519(Ed25519KeyPair::from_secret_key_bytes(&secret_key_bytes));
 
         let vc_str = r###"{
             "@context": "https://www.w3.org/2018/credentials/v1",
@@ -203,11 +203,11 @@ mod tests {
 
     #[test]
     fn test_verify_credential_ed25519() {
-        let keypair_bytes = [
+        let public_key_bytes = [
             184, 96, 68, 197, 81, 228, 13, 193, 222, 132, 170, 137, 194, 220, 242, 118, 87, 164,
             62, 5, 16, 241, 78, 147, 136, 193, 16, 10, 118, 249, 78, 92,
         ];
-        let keypair = KeyType::Ed25519(Ed25519KeyPair::from_public_key_bytes(&keypair_bytes));
+        let keypair = KeyType::Ed25519(Ed25519KeyPair::from_public_key_bytes(&public_key_bytes));
 
         let vc_str = r###"{
             "@context":"https://www.w3.org/2018/credentials/v1",
@@ -236,12 +236,13 @@ mod tests {
 
     #[test]
     fn test_sign_credential_sr25519() {
-        let keypair_bytes = [
+        let secret_key_bytes = [
             203, 83, 75, 248, 221, 21, 169, 1, 238, 68, 44, 174, 81, 11, 36, 111, 94, 148, 36, 125,
             115, 87, 11, 234, 71, 224, 170, 133, 153, 89, 196, 18,
         ];
-        let keypair =
-            KeyType::Sr25519(Sr25519KeyPair::from_mini_secret_key_bytes(&keypair_bytes).unwrap());
+        let keypair = KeyType::Sr25519(
+            Sr25519KeyPair::from_mini_secret_key_bytes(&secret_key_bytes).unwrap(),
+        );
 
         let vc_str = r###"{
             "@context": "https://www.w3.org/2018/credentials/v1",
@@ -261,12 +262,12 @@ mod tests {
 
     #[test]
     fn test_verify_credential_sr25519() {
-        let keypair_bytes = [
+        let public_key_bytes = [
             10, 134, 93, 127, 235, 233, 183, 168, 140, 74, 140, 108, 193, 62, 52, 75, 186, 199, 87,
             11, 57, 197, 167, 7, 79, 249, 198, 238, 217, 121, 191, 22,
         ];
         let keypair =
-            KeyType::Sr25519(Sr25519KeyPair::from_public_key_bytes(&keypair_bytes).unwrap());
+            KeyType::Sr25519(Sr25519KeyPair::from_public_key_bytes(&public_key_bytes).unwrap());
 
         let vc_str = r###"{
             "@context": "https://www.w3.org/2018/credentials/v1",
