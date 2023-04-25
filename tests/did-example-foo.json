@@ -1,0 +1,36 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1"
+  ],
+  "id": "did:example:foo",
+  "verificationMethod": [
+    {
+      "id": "did:example:foo#keys-1",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:example:foo",
+      "publicKeyBase58": "3mjBnLB2Sp2GGA3YhPHyzZXcShoAwtKaaq5pwgUcDQSe"
+    },
+    {
+      "id": "did:example:foo#keys-2",
+      "type": "Ed25519VerificationKey2020",
+      "controller": "did:example:foo",
+      "publicKeyMultibase": "z6MkhDzENaRTnMWjNetFNxFpqf5cGH52MmZwGqzkmxSd8dE2"
+    }
+  ],
+  "assertionMethod": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2"
+  ],
+  "authentication": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2"
+  ],
+  "capabilityDelegation": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2"
+  ],
+  "capabilityInvocation": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2"
+  ]
+}

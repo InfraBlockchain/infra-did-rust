@@ -25,3 +25,14 @@ thiserror = "1.0.40"
 iref = { version = "2.2.2", features = ["serde"] }
 static-iref = "2.0.0"
 multibase = "0.9.1"
+ssi-vc = "0.1.1"
+ssi = "0.6.0"
+ssi-json-ld = "0.2.1"
+ssi-ldp = "0.2.0"
+base64 = "0.12.3"
+ssi-jws = "0.1.0"
+ssi-dids =  { version = "0.1", features = ["example"] }
+async-std = { version = "1.9", features = ["attributes"] }
+async-trait = "0.1.68"
+serde_urlencoded = "0.7.1"
+percent-encoding = "2.2.0"
