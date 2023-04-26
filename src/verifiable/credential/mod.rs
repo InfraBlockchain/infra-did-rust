@@ -4,8 +4,6 @@ use ssi_vc::{Credential, LinkedDataProofOptions, ProofPurpose, URI};
 
 use crate::{crypto::ed25519::Ed25519KeyPair, resolver::resolver::InfraDIDResolver};
 
-mod lib;
-
 pub async fn issue_credential(
     did: String,
     hex_secret_key: String,
