@@ -83,15 +83,17 @@ pub async fn issue_presentation(
     serde_json::to_string_pretty(&vp).unwrap()
 }
 
-pub async fn verify_presentation(did: String, presentation_string: String) -> String {
+pub async fn verify_presentation(presentation_string: String) -> String {
     let vp: Presentation = Presentation::from_json(presentation_string.as_str()).unwrap();
+    let holder = vp.clone().holder.unwrap();
+
     let resolver = InfraDIDResolver::default();
 
     let mut context_loader = ssi_json_ld::ContextLoader::default();
 
     let options: LinkedDataProofOptions = LinkedDataProofOptions {
         proof_purpose: Some(ProofPurpose::AssertionMethod),
-        verification_method: Some(URI::String(did + "#keys-2")),
+        verification_method: Some(URI::String(holder.as_str().to_string() + "#keys-2")),
         ..Default::default()
     };
 
@@ -148,8 +150,7 @@ mod tests {
 
     #[async_std::test]
     async fn test_verify_presentation_ed25519() {
-        let did = "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW".to_string();
-        let vc_str = r###"{
+        let vp_str = r###"{
             "@context": [
                 "https://www.w3.org/2018/credentials/v1"
             ],
@@ -194,7 +195,7 @@ mod tests {
             "holder": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW"
         }"###;
 
-        let verify = verify_presentation(did, vc_str.to_string()).await;
+        let verify = verify_presentation(vp_str.to_string()).await;
         assert_eq!(verify, "true".to_string());
     }
 }

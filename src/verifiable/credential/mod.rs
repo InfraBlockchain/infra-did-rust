@@ -55,15 +55,16 @@ pub async fn issue_credential(
     serde_json::to_string_pretty(&vc).unwrap()
 }
 
-pub async fn verify_credential(did: String, credential_string: String) -> String {
+pub async fn verify_credential(credential_string: String) -> String {
     let vc: Credential = Credential::from_json(credential_string.as_str()).unwrap();
+    let issuer = vc.clone().issuer.unwrap();
     let resolver = InfraDIDResolver::default();
 
     let mut context_loader = ssi_json_ld::ContextLoader::default();
 
     let options: LinkedDataProofOptions = LinkedDataProofOptions {
         proof_purpose: Some(ProofPurpose::AssertionMethod),
-        verification_method: Some(URI::String(did + "#keys-2")),
+        verification_method: Some(URI::String(issuer.get_id() + "#keys-2")),
         ..Default::default()
     };
 
@@ -109,7 +110,6 @@ mod tests {
 
     #[async_std::test]
     async fn test_verify_credential_ed25519() {
-        let did = "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW".to_string();
         let vc_str = r###"{
             "@context": [
                 "https://www.w3.org/2018/credentials/v1"
@@ -137,7 +137,7 @@ mod tests {
             }
         }"###;
 
-        let verify = verify_credential(did, vc_str.to_string()).await;
+        let verify = verify_credential(vc_str.to_string()).await;
         assert_eq!(verify, "true".to_string());
     }
 }
