@@ -9,12 +9,7 @@ pub async fn issue_credential(
     hex_secret_key: String,
     credential_string: String,
 ) -> String {
-    let secret_key_bytes = match hex::decode(hex_secret_key) {
-        Ok(bytes) => bytes,
-        Err(error) => {
-            panic!("There was a problem convert secret key bytes: {:?}", error)
-        }
-    };
+    let secret_key_bytes = hex::decode(hex_secret_key).unwrap();
 
     let keypair = Ed25519KeyPair::from_secret_key_bytes(&secret_key_bytes);
 
