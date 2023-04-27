@@ -43,7 +43,7 @@ impl DIDResolver for InfraDIDResolver {
         Option<Document>,
         Option<DocumentMetadata>,
     ) {
-        let hex_public_key = did_to_hex_public_key(did.to_string(), AddressType::Ed25519);
+        let hex_public_key = did_to_hex_public_key(did.to_string(), AddressType::Ed25519).unwrap();
         let public_key_bytes = hex::decode(hex_public_key).unwrap();
 
         let vms = vec![

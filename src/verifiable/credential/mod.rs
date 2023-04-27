@@ -2,14 +2,14 @@ use ssi::jwk::{Base64urlUInt, OctetParams, Params, JWK};
 use ssi_ldp::{ProofSuite, ProofSuiteType};
 use ssi_vc::{Credential, LinkedDataProofOptions, ProofPurpose, URI};
 
-use crate::{crypto::ed25519::Ed25519KeyPair, resolver::resolver::InfraDIDResolver};
+use crate::{crypto::ed25519::Ed25519KeyPair, resolver::resolver::InfraDIDResolver, Error};
 
 pub async fn issue_credential(
     did: String,
     hex_secret_key: String,
     credential_string: String,
-) -> String {
-    let secret_key_bytes = hex::decode(hex_secret_key).unwrap();
+) -> Result<String, Error> {
+    let secret_key_bytes = hex::decode(hex_secret_key)?;
 
     let keypair = Ed25519KeyPair::from_secret_key_bytes(&secret_key_bytes);
 
@@ -19,7 +19,7 @@ pub async fn issue_credential(
         private_key: Some(Base64urlUInt(keypair.to_secret_key_bytes().to_vec())),
     }));
 
-    let mut vc: Credential = Credential::from_json_unsigned(credential_string.as_str()).unwrap();
+    let mut vc: Credential = Credential::from_json_unsigned(credential_string.as_str())?;
 
     let resolver = InfraDIDResolver::default();
 
@@ -40,19 +40,21 @@ pub async fn issue_credential(
             &key,
             None,
         )
-        .await
-        .unwrap();
+        .await?;
     vc.add_proof(proof);
-    vc.validate().unwrap();
+    vc.validate()?;
 
     let verification_result = vc.verify(None, &resolver, &mut context_loader).await;
-    assert!(verification_result.errors.is_empty());
-    serde_json::to_string_pretty(&vc).unwrap()
+    if verification_result.errors.is_empty() {
+        Ok(serde_json::to_string_pretty(&vc)?)
+    } else {
+        Err(Error::InvalidProof)
+    }
 }
 
-pub async fn verify_credential(credential_string: String) -> String {
-    let vc: Credential = Credential::from_json(credential_string.as_str()).unwrap();
-    let issuer = vc.clone().issuer.unwrap();
+pub async fn verify_credential(credential_string: String) -> Result<String, Error> {
+    let vc: Credential = Credential::from_json(credential_string.as_str())?;
+    let issuer = vc.clone().issuer.ok_or(Error::InvalidIssuer)?;
     let resolver = InfraDIDResolver::default();
 
     let mut context_loader = ssi_json_ld::ContextLoader::default();
@@ -67,9 +69,9 @@ pub async fn verify_credential(credential_string: String) -> String {
         .verify(Some(options), &resolver, &mut context_loader)
         .await;
     if verification_result.errors.is_empty() {
-        "true".to_string()
+        Ok("true".to_string())
     } else {
-        "false".to_string()
+        Ok("false".to_string())
     }
 }
 
@@ -132,7 +134,7 @@ mod tests {
             }
         }"###;
 
-        let verify = verify_credential(vc_str.to_string()).await;
+        let verify = verify_credential(vc_str.to_string()).await.unwrap();
         assert_eq!(verify, "true".to_string());
     }
 }

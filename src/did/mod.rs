@@ -3,7 +3,10 @@ use schnorrkel::ExpansionMode;
 use serde_json::json;
 use substrate_bip39::mini_secret_from_entropy;
 
-use crate::crypto::{ed25519::Ed25519KeyPair, sr25519::Sr25519KeyPair};
+use crate::{
+    crypto::{ed25519::Ed25519KeyPair, sr25519::Sr25519KeyPair},
+    Error,
+};
 
 pub enum AddressType {
     Ed25519,
@@ -19,8 +22,8 @@ pub fn random_phrase(words_number: u32) -> String {
     mnemonic.into_phrase()
 }
 
-pub fn generate_ss58_did(network_id: String, address_type: AddressType) -> String {
-    let mnemonic_type = MnemonicType::for_word_count(12).unwrap();
+pub fn generate_ss58_did(network_id: String, address_type: AddressType) -> Result<String, Error> {
+    let mnemonic_type = MnemonicType::for_word_count(12)?;
     let mnemonic = Mnemonic::new(mnemonic_type, Language::English);
 
     match address_type {
@@ -39,24 +42,21 @@ pub fn generate_ss58_did(network_id: String, address_type: AddressType) -> Strin
                 "public_key": hex::encode(keypair.to_public_key_bytes()),
                 "address": address.clone(),
                 "did": did
-            }));
-            result.unwrap()
+            }))?;
+            Ok(result)
         }
         AddressType::Sr25519 => {
             let keypair_option: Option<Sr25519KeyPair> =
                 Sr25519KeyPair::from_suri(mnemonic.clone().into_phrase().as_str());
 
-            let keypair = match keypair_option {
-                Some(c) => c,
-                _ => return "".to_string(),
-            };
+            let keypair = keypair_option.ok_or(Error::InvalidKeypair)?;
 
             let address = keypair.ss58_address(42);
             let did = format!("did:infra:{}:{}", network_id, address.clone());
 
-            let mini_secret_key = mini_secret_from_entropy(mnemonic.entropy(), "").unwrap();
+            let mini_secret_key = mini_secret_from_entropy(mnemonic.entropy(), "").ok();
 
-            let secret_key = mini_secret_key;
+            let secret_key = mini_secret_key.ok_or(Error::InvalidSecretKey)?;
             let public_key = secret_key.expand_to_public(ExpansionMode::Ed25519);
 
             let result = serde_json::to_string(&json!({
@@ -65,8 +65,8 @@ pub fn generate_ss58_did(network_id: String, address_type: AddressType) -> Strin
                 "public_key": hex::encode(public_key.to_bytes()),
                 "address": address.clone(),
                 "did": did
-            }));
-            result.unwrap()
+            }))?;
+            Ok(result)
         }
     }
 }
@@ -75,7 +75,7 @@ pub fn generate_ss58_did_from_phrase(
     suri: String,
     network_id: String,
     address_type: AddressType,
-) -> String {
+) -> Result<String, Error> {
     match address_type {
         AddressType::Ed25519 => {
             let keypair: Ed25519KeyPair =
@@ -90,25 +90,22 @@ pub fn generate_ss58_did_from_phrase(
                 "public_key": hex::encode(keypair.to_public_key_bytes()),
                 "address": address.clone(),
                 "did": did
-            }));
-            result.unwrap()
+            }))?;
+            Ok(result)
         }
         AddressType::Sr25519 => {
             let keypair_option: Option<Sr25519KeyPair> =
                 Sr25519KeyPair::from_suri(suri.clone().as_str());
 
-            let keypair = match keypair_option {
-                Some(c) => c,
-                _ => return "".to_string(),
-            };
+            let keypair: Sr25519KeyPair = keypair_option.ok_or(Error::InvalidKeypair)?;
 
             let address = keypair.ss58_address(42);
             let did = format!("did:infra:{}:{}", network_id, address.clone());
 
-            let mnemonic = Mnemonic::from_phrase(&suri, Language::English).unwrap();
-            let mini_secret_key = mini_secret_from_entropy(mnemonic.entropy(), "").unwrap();
+            let mnemonic = Mnemonic::from_phrase(&suri, Language::English)?;
+            let mini_secret_key = mini_secret_from_entropy(mnemonic.entropy(), "").ok();
 
-            let secret_key = mini_secret_key;
+            let secret_key = mini_secret_key.ok_or(Error::InvalidSecretKey)?;
             let public_key = secret_key.expand_to_public(ExpansionMode::Ed25519);
 
             let result = serde_json::to_string(&json!({
@@ -117,22 +114,22 @@ pub fn generate_ss58_did_from_phrase(
                 "public_key": hex::encode(public_key.to_bytes()),
                 "address": address.clone(),
                 "did": did
-            }));
-            result.unwrap()
+            }))?;
+            Ok(result)
         }
     }
 }
 
-pub fn did_to_hex_public_key(did: String, address_type: AddressType) -> String {
+pub fn did_to_hex_public_key(did: String, address_type: AddressType) -> Result<String, Error> {
     let splited_did: Vec<&str> = did.split(":").collect();
     let address = splited_did[3];
 
-    let decoded_address = bs58::decode(address).into_vec().unwrap();
+    let decoded_address = bs58::decode(address).into_vec()?;
 
     let public_key_bytes: [u8; 32] = match address_type {
         AddressType::Ed25519 => {
             let public_key: ed25519_dalek::PublicKey =
-                ed25519_dalek::PublicKey::from_bytes(&decoded_address[1..33]).unwrap();
+                ed25519_dalek::PublicKey::from_bytes(&decoded_address[1..33])?;
             public_key.to_bytes()
         }
         AddressType::Sr25519 => {
@@ -142,12 +139,12 @@ pub fn did_to_hex_public_key(did: String, address_type: AddressType) -> String {
         }
     };
 
-    hex::encode(public_key_bytes)
+    Ok(hex::encode(public_key_bytes))
 }
 
-pub fn ss58_address_to_did(address: String, network_id: String) -> String {
+pub fn ss58_address_to_did(address: String, network_id: String) -> Result<String, Error> {
     let did = format!("did:infra:{}:{}", network_id, address);
-    did
+    Ok(did)
 }
 
 #[cfg(test)]
@@ -189,6 +186,7 @@ mod tests {
                 "01".to_string(),
                 AddressType::Ed25519
             )
+            .unwrap()
         );
 
         assert_eq!(
@@ -199,6 +197,7 @@ mod tests {
                 "01".to_string(),
                 AddressType::Sr25519
             )
+            .unwrap()
         );
     }
 
@@ -208,7 +207,8 @@ mod tests {
             did_to_hex_public_key(
                 "did:infra:01:5GM7RtekqU8cGiS4MKQ7tufoH4Q1itzmoFpVcvcPfjksyPrw".to_string(),
                 AddressType::Ed25519
-            ),
+            )
+            .unwrap(),
             "bd7436a22571207d018ffe83f5dc77d0750b7777f1eb169053d40201d6c68d53".to_string()
         );
 
@@ -216,7 +216,8 @@ mod tests {
             did_to_hex_public_key(
                 "did:infra:01:5Gv8YYFu8H1btvmrJy9FjjAWfb99wrhV3uhPFoNEr918utyR".to_string(),
                 AddressType::Sr25519
-            ),
+            )
+            .unwrap(),
             "d6a3105d6768e956e9e5d41050ac29843f98561410d3a47f9dd5b3b227ab8746".to_string()
         );
     }
@@ -227,7 +228,8 @@ mod tests {
             ss58_address_to_did(
                 "5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL".to_string(),
                 "01".to_string()
-            ),
+            )
+            .unwrap(),
             "did:infra:01:5H6PhTQ1ukXBE1pqYVt2BMLjiKD9pqVsoppp2g8eM4EENAfL".to_string()
         );
     }

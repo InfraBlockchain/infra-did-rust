@@ -36,3 +36,4 @@ async-std = { version = "1.9", features = ["attributes"] }
 async-trait = "0.1.68"
 serde_urlencoded = "0.7.1"
 percent-encoding = "2.2.0"
+anyhow = "1.0.70"

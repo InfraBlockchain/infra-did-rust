@@ -6,15 +6,16 @@ use ssi_vc::{
 };
 
 use crate::{
-    crypto::ed25519::Ed25519KeyPair, did::random_phrase, resolver::resolver::InfraDIDResolver,
+    crypto::ed25519::Ed25519KeyPair, did::random_phrase, error::Error,
+    resolver::resolver::InfraDIDResolver,
 };
 
 pub async fn issue_presentation(
     did: String,
     hex_secret_key: String,
     credential_string: String,
-) -> String {
-    let secret_key_bytes = hex::decode(hex_secret_key).unwrap();
+) -> Result<String, Error> {
+    let secret_key_bytes = hex::decode(hex_secret_key)?;
 
     let keypair = Ed25519KeyPair::from_secret_key_bytes(&secret_key_bytes);
 
@@ -24,7 +25,7 @@ pub async fn issue_presentation(
         private_key: Some(Base64urlUInt(keypair.to_secret_key_bytes().to_vec())),
     }));
 
-    let vc: Credential = Credential::from_json(credential_string.as_str()).unwrap();
+    let vc: Credential = Credential::from_json(credential_string.as_str())?;
 
     let resolver = InfraDIDResolver::default();
 
@@ -61,10 +62,9 @@ pub async fn issue_presentation(
 
     let vp_proof = vp
         .generate_proof(&key, &vp_issue_options, &resolver, &mut context_loader)
-        .await
-        .unwrap();
+        .await?;
     vp.add_proof(vp_proof);
-    vp.validate().unwrap();
+    vp.validate()?;
 
     let vp_verification_result = vp
         .verify(
@@ -73,14 +73,17 @@ pub async fn issue_presentation(
             &mut context_loader,
         )
         .await;
-    assert!(vp_verification_result.errors.is_empty());
 
-    serde_json::to_string_pretty(&vp).unwrap()
+    if vp_verification_result.errors.is_empty() {
+        Ok(serde_json::to_string_pretty(&vp)?)
+    } else {
+        Err(Error::InvalidProof)
+    }
 }
 
-pub async fn verify_presentation(presentation_string: String) -> String {
-    let vp: Presentation = Presentation::from_json(presentation_string.as_str()).unwrap();
-    let holder = vp.clone().holder.unwrap();
+pub async fn verify_presentation(presentation_string: String) -> Result<String, Error> {
+    let vp: Presentation = Presentation::from_json(presentation_string.as_str())?;
+    let holder = vp.clone().holder.ok_or(Error::MissingHolder)?;
 
     let resolver = InfraDIDResolver::default();
 
@@ -97,9 +100,9 @@ pub async fn verify_presentation(presentation_string: String) -> String {
         .await;
 
     if vp_verification_result.errors.is_empty() {
-        "true".to_string()
+        Ok("true".to_string())
     } else {
-        "false".to_string()
+        Ok("false".to_string())
     }
 }
 
@@ -190,7 +193,7 @@ mod tests {
             "holder": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW"
         }"###;
 
-        let verify = verify_presentation(vp_str.to_string()).await;
+        let verify: String = verify_presentation(vp_str.to_string()).await.unwrap();
         assert_eq!(verify, "true".to_string());
     }
 }
