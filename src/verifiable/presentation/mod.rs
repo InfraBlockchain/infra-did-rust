@@ -52,9 +52,9 @@ pub async fn issue_presentation(
     };
 
     let vp_issue_options: LinkedDataProofOptions = LinkedDataProofOptions {
-        type_: Some(ProofSuiteType::Ed25519Signature2020),
+        type_: Some(ProofSuiteType::Ed25519Signature2018),
         proof_purpose: Some(ProofPurpose::AssertionMethod),
-        verification_method: Some(URI::String(did + "#keys-2")),
+        verification_method: Some(URI::String(did + "#keys-1")),
         ..Default::default()
     };
 
@@ -91,7 +91,7 @@ pub async fn verify_presentation(presentation_string: String) -> Result<String, 
 
     let options: LinkedDataProofOptions = LinkedDataProofOptions {
         proof_purpose: Some(ProofPurpose::AssertionMethod),
-        verification_method: Some(URI::String(holder.as_str().to_string() + "#keys-2")),
+        verification_method: Some(URI::String(holder.as_str().to_string() + "#keys-1")),
         ..Default::default()
     };
 
@@ -131,14 +131,11 @@ mod tests {
             "issuer": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
             "issuanceDate": "2023-04-24T06:08:03.039Z",
             "proof": {
-                "@context": [
-                    "https://w3id.org/security/suites/ed25519-2020/v1"
-                ],
-                "type": "Ed25519Signature2020",
+                "type": "Ed25519Signature2018",
                 "proofPurpose": "assertionMethod",
-                "proofValue": "z3gFJvCvNYTVQJ7R7tXzbmAyZ62g3ZymbzwTrWJhgwatJouope5GnQmz7NW2zAVVYbor5KUW8TUa1V5KADPp8kBog",
-                "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
-                "created": "2023-04-25T23:52:13.770Z"
+                "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+                "created": "2023-07-21T00:14:01.797Z",
+                "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..QlVHquEY_yMSZTKEl7IzgjSz2cV2rykkPlT7ojcf6q7859ErV5reLs1nH_5XMTLVY9LTwQOQsc1a8Lz4RFNbCQ"
             }
         }"###;
 
@@ -152,7 +149,7 @@ mod tests {
             "@context": [
                 "https://www.w3.org/2018/credentials/v1"
             ],
-            "id": "did:infra:01:5C65pZF9tBxUgRarjqNQRLUYaxhjDatawtJsPUFLsv8HrRDs",
+            "id": "did:infra:01:5CG2qsBQoUR4tXfK2mmGEHdb61wF7Dy6NUQtLgrguBZAFT5E",
             "type": "VerifiablePresentation",
             "verifiableCredential": {
                 "@context": [
@@ -170,25 +167,19 @@ mod tests {
                 "issuer": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
                 "issuanceDate": "2023-04-24T06:08:03.039Z",
                 "proof": {
-                    "@context": [
-                        "https://w3id.org/security/suites/ed25519-2020/v1"
-                    ],
-                    "type": "Ed25519Signature2020",
+                    "type": "Ed25519Signature2018",
                     "proofPurpose": "assertionMethod",
-                    "proofValue": "z3gFJvCvNYTVQJ7R7tXzbmAyZ62g3ZymbzwTrWJhgwatJouope5GnQmz7NW2zAVVYbor5KUW8TUa1V5KADPp8kBog",
-                    "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
-                    "created": "2023-04-25T23:52:13.770Z"
+                    "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+                    "created": "2023-07-21T00:14:01.797Z",
+                    "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..QlVHquEY_yMSZTKEl7IzgjSz2cV2rykkPlT7ojcf6q7859ErV5reLs1nH_5XMTLVY9LTwQOQsc1a8Lz4RFNbCQ"
                 }
             },
             "proof": {
-                "@context": [
-                    "https://w3id.org/security/suites/ed25519-2020/v1"
-                ],
-                "type": "Ed25519Signature2020",
+                "type": "Ed25519Signature2018",
                 "proofPurpose": "assertionMethod",
-                "proofValue": "z5fwTSAD25dFq62rYCzeNUD5TfYwpgSB7HLa9eLtDMpPVB2hb83rbvDmydwPmwubiswWYvcZVmxqG34GxkkLkypDY",
-                "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
-                "created": "2023-04-26T00:21:22.810Z"
+                "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+                "created": "2023-07-21T00:16:39.571Z",
+                "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..5NFKxvzG-mZZzzQ7uE2UAuZ4te6pJhjmzx8RI-OrMsZSXrMHQjjvagFr_IYkCpxllrn9Elp1hUAE31SBMPCTAA"
             },
             "holder": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW"
         }"###;

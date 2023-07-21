@@ -25,13 +25,13 @@ pub async fn issue_credential(
 
     let mut context_loader = ssi_json_ld::ContextLoader::default();
     let issue_options: LinkedDataProofOptions = LinkedDataProofOptions {
-        type_: Some(ProofSuiteType::Ed25519Signature2020),
+        type_: Some(ProofSuiteType::Ed25519Signature2018),
         proof_purpose: Some(ProofPurpose::AssertionMethod),
-        verification_method: Some(URI::String(did + "#keys-2")),
+        verification_method: Some(URI::String(did + "#keys-1")),
         ..Default::default()
     };
 
-    let proof = ProofSuiteType::Ed25519Signature2020
+    let proof = ProofSuiteType::Ed25519Signature2018
         .sign(
             &vc,
             &issue_options,
@@ -61,7 +61,7 @@ pub async fn verify_credential(credential_string: String) -> Result<String, Erro
 
     let options: LinkedDataProofOptions = LinkedDataProofOptions {
         proof_purpose: Some(ProofPurpose::AssertionMethod),
-        verification_method: Some(URI::String(issuer.get_id() + "#keys-2")),
+        verification_method: Some(URI::String(issuer.get_id() + "#keys-1")),
         ..Default::default()
     };
 
@@ -123,14 +123,11 @@ mod tests {
             "issuer": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
             "issuanceDate": "2023-04-24T06:08:03.039Z",
             "proof": {
-                "@context": [
-                    "https://w3id.org/security/suites/ed25519-2020/v1"
-                ],
-                "type": "Ed25519Signature2020",
+                "type": "Ed25519Signature2018",
                 "proofPurpose": "assertionMethod",
-                "proofValue": "z3gFJvCvNYTVQJ7R7tXzbmAyZ62g3ZymbzwTrWJhgwatJouope5GnQmz7NW2zAVVYbor5KUW8TUa1V5KADPp8kBog",
-                "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
-                "created": "2023-04-25T23:52:13.770Z"
+                "verificationMethod": "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+                "created": "2023-07-21T00:14:01.797Z",
+                "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..QlVHquEY_yMSZTKEl7IzgjSz2cV2rykkPlT7ojcf6q7859ErV5reLs1nH_5XMTLVY9LTwQOQsc1a8Lz4RFNbCQ"
             }
         }"###;
 
