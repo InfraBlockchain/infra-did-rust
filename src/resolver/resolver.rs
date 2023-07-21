@@ -3,6 +3,7 @@ use serde_json::json;
 use ssi::did_resolve::{
     DIDResolver, DocumentMetadata, ResolutionInputMetadata, ResolutionMetadata, TYPE_DID_LD_JSON,
 };
+use ssi::jwk::{Base64urlUInt, OctetParams, Params, JWK};
 use ssi_dids::{Document, VerificationMethod, VerificationMethodMap, DIDURL};
 
 use crate::did::{did_to_hex_public_key, AddressType};
@@ -46,6 +47,12 @@ impl DIDResolver for InfraDIDResolver {
         let hex_public_key = did_to_hex_public_key(did.to_string(), AddressType::Ed25519).unwrap();
         let public_key_bytes = hex::decode(hex_public_key).unwrap();
 
+        let jwk: JWK = JWK::from(Params::OKP(OctetParams {
+            curve: "Ed25519".to_string(),
+            public_key: Base64urlUInt(public_key_bytes.clone()),
+            private_key: None,
+        }));
+
         let vms = vec![
             VerificationMethod::Map(VerificationMethodMap {
                 id: did.to_string() + "#keys-1",
@@ -71,6 +78,13 @@ impl DIDResolver for InfraDIDResolver {
                 .unwrap(),
                 ..Default::default()
             }),
+            VerificationMethod::Map(VerificationMethodMap {
+                id: did.to_string() + "#keys-3",
+                type_: "JsonWebKey2020".to_string(),
+                controller: did.to_string(),
+                public_key_jwk: Some(jwk),
+                ..Default::default()
+            }),
         ];
 
         let vm_urls = vec![
@@ -80,6 +94,10 @@ impl DIDResolver for InfraDIDResolver {
             }),
             VerificationMethod::DIDURL(DIDURL {
                 did: did.to_string() + "#keys-2",
+                ..Default::default()
+            }),
+            VerificationMethod::DIDURL(DIDURL {
+                did: did.to_string() + "#keys-3",
                 ..Default::default()
             }),
         ];
