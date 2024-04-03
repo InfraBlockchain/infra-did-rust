@@ -156,7 +156,7 @@ impl DIDResolver for TestDIDResolver {
     ) {
         let doc_str = match did {
             "did:example:foo" => DOC_JSON_FOO,
-            "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW" => DOC_JSON_INFRA,
+            "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW" => DOC_JSON_INFRA,
             _ => return (ResolutionMetadata::from_error(ERROR_NOT_FOUND), None, None),
         };
         let doc: Document = match serde_json::from_str(doc_str) {
@@ -195,7 +195,7 @@ mod tests {
         let resolver = InfraDIDResolver::default();
         let (_, doc, _) = resolver
             .resolve(
-                "did:infra:space:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
+                "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
                 &ResolutionInputMetadata::default(),
             )
             .await;
