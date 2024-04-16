@@ -1,0 +1,50 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1"
+  ],
+  "id": "did:example:foo",
+  "verificationMethod": [
+    {
+      "id": "did:example:foo#keys-1",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:example:foo",
+      "publicKeyBase58": "F9JHKboDqg3tK9wnrt8z8xwZRnoZCJAHTdxXVuUMW8z2"
+    },
+    {
+      "id": "did:example:foo#keys-2",
+      "type": "Ed25519VerificationKey2020",
+      "controller": "did:example:foo",
+      "publicKeyMultibase": "z6MktbZKur3fBDYMRenVYT6pz4VZFN5QcBQe9esTLBSNRMmQ"
+    },
+    {
+      "id": "did:example:foo#keys-3",
+      "type": "JsonWebKey2020",
+      "controller": "did:example:foo",
+      "publicKeyJwk": {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "0iPNtvMisdUWHTxJlYR9w0cvQ2NmEQ-2cu4B0x60648"
+      }
+    }
+  ],
+  "assertionMethod": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2",
+    "did:example:foo#keys-3"
+  ],
+  "authentication": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2",
+    "did:example:foo#keys-3"
+  ],
+  "capabilityDelegation": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2",
+    "did:example:foo#keys-3"
+  ],
+  "capabilityInvocation": [
+    "did:example:foo#keys-1",
+    "did:example:foo#keys-2",
+    "did:example:foo#keys-3"
+  ]
+}

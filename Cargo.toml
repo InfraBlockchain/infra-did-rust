@@ -1,12 +1,8 @@
 [package]
-name = "example-rs"
+name = "infra-did"
 version = "0.1.0"
-authors = ["Brick Pop <itsbrickpop@gmail.com>"]
-edition = "2018"
-
-[lib]
-name = "example"
-crate-type = ["staticlib", "cdylib"]
+authors = ["InfraBlockchain"]
+edition = "2021"
 
 [dependencies]
 hex = "0.4.3"
@@ -23,3 +19,21 @@ blake2-rfc = "0.2.18"
 rustc-hex = "2.0.1"
 ed25519-dalek = "1.0.1"
 bs58 = "0.4.0"
+rand = "0.7.0"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0.40"
+iref = { version = "2.2.2", features = ["serde"] }
+static-iref = "2.0.0"
+multibase = "0.9.1"
+ssi-vc = "0.2.1"
+ssi = "0.7.0"
+ssi-json-ld = "0.2.2"
+ssi-ldp = "0.3.2"
+base64 = "0.12.3"
+ssi-jws = "0.1.1"
+ssi-dids =  { version = "0.1.1", features = ["example"] }
+async-std = { version = "1.9", features = ["attributes"] }
+async-trait = "0.1.68"
+serde_urlencoded = "0.7.1"
+percent-encoding = "2.2.0"
+anyhow = "1.0.70"

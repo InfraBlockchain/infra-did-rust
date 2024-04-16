@@ -1,0 +1,40 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1"
+  ],
+  "id": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
+  "verificationMethod": [
+    {
+      "id": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
+      "publicKeyBase58": "F9JHKboDqg3tK9wnrt8z8xwZRnoZCJAHTdxXVuUMW8z2"
+    },
+    {
+      "id": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
+      "type": "Ed25519VerificationKey2020",
+      "controller": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
+      "publicKeyMultibase": "z6MktbZKur3fBDYMRenVYT6pz4VZFN5QcBQe9esTLBSNRMmQ"
+    },
+    {
+      "id": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-3",
+      "type": "JsonWebKey2020",
+      "controller": "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW",
+      "publicKeyJwk": {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "0iPNtvMisdUWHTxJlYR9w0cvQ2NmEQ-2cu4B0x60648"
+      }
+    }
+  ],
+  "authentication": [
+    "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+    "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
+    "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-3"
+  ],
+  "assertionMethod": [
+    "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-1",
+    "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-2",
+    "did:infra:01:5GpEYnXBoLgvzyWe4Defitp5UV25xZUiUCJM2xNgkDXkM4NW#keys-3"
+  ]
+}
