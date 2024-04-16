@@ -103,9 +103,9 @@ impl DIDResolver for InfraDIDResolver {
         ];
 
         let doc = Document {
-            context: ssi_dids::Contexts::One(ssi_dids::Context::URI(
+            context: ssi_dids::Contexts::Many(vec![ssi_dids::Context::URI(
                 ssi_dids::DEFAULT_CONTEXT.into(),
-            )),
+            )]),
             id: did.to_string(),
             verification_method: Some(vms),
             authentication: Some(vm_urls.clone()),
