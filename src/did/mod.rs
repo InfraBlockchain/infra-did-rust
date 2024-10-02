@@ -122,7 +122,15 @@ pub fn generate_ss58_did_from_phrase(
 
 pub fn did_to_hex_public_key(did: String, address_type: AddressType) -> Result<String, Error> {
     let splited_did: Vec<&str> = did.split(":").collect();
-    let address = splited_did[3];
+    let method_name = splited_did[1];   // DID method name. See DID spec document
+    let address = if method_name == "infra" {
+            if splited_did.len() < 4 {
+                return Err(Error::InvalidDID)
+            }
+            splited_did[3]
+        } else {
+            todo!()
+        };
 
     let decoded_address = bs58::decode(address).into_vec()?;
 
@@ -220,6 +228,18 @@ mod tests {
             .unwrap(),
             "d6a3105d6768e956e9e5d41050ac29843f98561410d3a47f9dd5b3b227ab8746".to_string()
         );
+    }
+
+    #[test]
+    fn test_wrong_did_format() {
+        // DID method name "infra" requires format of {network_name}:{public_key}
+        assert!(
+            did_to_hex_public_key(
+                "did:infra:5GM7RtekqU8cGiS4MKQ7tufoH4Q1itzmoFpVcvcPfjksyPrw".to_string(),
+                AddressType::Ed25519
+            )
+            .is_err()
+        )
     }
 
     #[test]
