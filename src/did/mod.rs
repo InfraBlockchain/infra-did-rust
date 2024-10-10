@@ -132,7 +132,7 @@ pub fn did_to_hex_public_key(did: String, address_type: AddressType) -> Result<S
             todo!()
         };
 
-    let decoded_address = bs58::decode(address).into_vec()?;
+    let decoded_address: Vec<u8> = bs58::decode(address).into_vec()?;
 
     let public_key_bytes: [u8; 32] = match address_type {
         AddressType::Ed25519 => {
@@ -148,6 +148,22 @@ pub fn did_to_hex_public_key(did: String, address_type: AddressType) -> Result<S
     };
 
     Ok(hex::encode(public_key_bytes))
+}
+
+pub fn did_to_public_key_bytes(did: String) -> Result<Vec<u8>, Error> {
+    let splited_did: Vec<&str> = did.split(":").collect();
+    let method_name = splited_did[1];   // DID method name. See DID spec document
+    let address = if method_name == "infra" {
+            if splited_did.len() < 4 {
+                return Err(Error::InvalidDID)
+            }
+            splited_did[3]
+        } else {
+            todo!()
+        };
+    let decoded_address = bs58::decode(address).into_vec().expect("Can not decode address");
+
+    Ok(decoded_address)
 }
 
 pub fn ss58_address_to_did(address: String, network_id: String) -> Result<String, Error> {
@@ -239,6 +255,17 @@ mod tests {
                 AddressType::Ed25519
             )
             .is_err()
+        )
+    }
+
+    #[test]
+    fn test_did_to_bytesvec_public_key() {
+
+        let did = did_to_public_key_bytes("did:infra:01:5GM7RtekqU8cGiS4MKQ7tufoH4Q1itzmoFpVcvcPfjksyPrw".to_string()).unwrap();
+
+        assert_eq!(
+            hex::encode(did),
+            "bd7436a22571207d018ffe83f5dc77d0750b7777f1eb169053d40201d6c68d53".to_string()
         )
     }
 
