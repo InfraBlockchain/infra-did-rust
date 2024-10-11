@@ -1,9 +1,12 @@
 use async_trait::async_trait;
 use serde_json::json;
-use ssi::did_resolve::{
-    DIDResolver, DocumentMetadata, ResolutionInputMetadata, ResolutionMetadata, TYPE_DID_LD_JSON,
+use ssi::{
+    did_resolve::{
+        DIDResolver, DocumentMetadata, ResolutionInputMetadata, ResolutionMetadata,
+        TYPE_DID_LD_JSON,
+    },
+    jwk::{Base64urlUInt, OctetParams, Params, JWK},
 };
-use ssi::jwk::{Base64urlUInt, OctetParams, Params, JWK};
 use ssi_dids::{Document, VerificationMethod, VerificationMethodMap, DIDURL};
 
 use crate::did::{did_to_hex_public_key, AddressType};

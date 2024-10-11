@@ -2,8 +2,8 @@ use base58::ToBase58;
 use bip39::{Language, Mnemonic};
 use codec::{Decode, Encode};
 use regex::Regex;
-use schnorrkel::derive::{ChainCode, Derivation};
 use schnorrkel::{
+    derive::{ChainCode, Derivation},
     ExpansionMode, MiniSecretKey, PublicKey, SecretKey, Signature, KEYPAIR_LENGTH,
     SECRET_KEY_LENGTH,
 };
